@@ -39,3 +39,7 @@ This app uses the [WeatherAPI](https://www.weatherapi.com/). You will need an AP
 2. Replace the `apiKey` variable in the JavaScript file (`index.html`) with your own API key.
 
 Here iS the demo.
+
+
+https://github.com/user-attachments/assets/61251c04-9272-4940-a90e-76699df1a5ac
+
