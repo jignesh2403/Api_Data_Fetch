@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Data Display</title>
+    <style>
+        body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url('https://i.ibb.co/8B3dGDK/chuttersnap-9-Aq-Idz-Ec9p-Y-unsplash.jpg') no-repeat center center fixed;
+    background-size: cover; /* Ensures the image covers the whole background */
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        #weather-output {
+            max-width: 700px;
+            width: 90%;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-in-out;
+            margin-top: 20px;
+        }
+        h2 {
+            margin: 0;
+            color: #333;
+            text-align: center;
+            font-size: 1.8em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        p, ul {
+            margin: 15px 0;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+        strong {
+            color: #000;
+        }
+        img {
+            vertical-align: middle;
+            height: 50px;
+        }
+        h3 {
+            color: #0047ab;
+            border-bottom: 2px solid #0047ab;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .refresh-btn, .location-btn {
+            display: inline-block;
+            background: #0047ab;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 15px;
+            text-align: center;
+            transition: background 0.3s;
+        }
+        .refresh-btn:hover, .location-btn:hover {
+            background: #003180;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1em;
+            border: 2px solid #0047ab;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: #003180;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Weather Information</h1>
+        
+  
+        <input type="text" id="location-input" placeholder="Enter city name" />
+        <button class="location-btn" onclick="changeLocation()">Get Weather</button>
+
+        <div id="weather-output"></div>
+        <a href="#" class="refresh-btn" onclick="fetchWeatherData()">Refresh</a>
+    </div>
+
+    <script>
+        const apiKey = 'Your API Key';
+        let weatherLocation = 'Anand'; 
+        const apiUrl = (location) => `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`;
+
+        async function fetchWeatherData() {
+            try {
+                const response = await fetch(apiUrl(weatherLocation));
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                const { location, current } = data;
+
+                const outputElement = document.getElementById('weather-output');
+                outputElement.innerHTML = `
+                    <h2>${location.name}, ${location.region}, ${location.country}</h2>
+                    <p><strong>Local Time:</strong> ${location.localtime}</p>
+                    <p><strong>Temperature:</strong> ${current.temp_c} °C (${current.temp_f} °F)</p>
+                    <p><strong>Condition:</strong> ${current.condition.text}</p>
+                    <p><strong>Wind:</strong> ${current.wind_kph} kph (${current.wind_dir})</p>
+                    <p><strong>Humidity:</strong> ${current.humidity}%</p>
+                    <p><strong>Pressure:</strong> ${current.pressure_mb} mb</p>
+                    <p><strong>Precipitation:</strong> ${current.precip_mm} mm</p>
+                    <p><strong>UV Index:</strong> ${current.uv}</p>
+                    <h3>Air Quality</h3>
+                    <ul>
+                        <li><strong>CO:</strong> ${current.air_quality.co} µg/m³</li>
+                        <li><strong>NO2:</strong> ${current.air_quality.no2} µg/m³</li>
+                        <li><strong>O3:</strong> ${current.air_quality.o3} µg/m³</li>
+                        <li><strong>SO2:</strong> ${current.air_quality.so2} µg/m³</li>
+                        <li><strong>PM2.5:</strong> ${current.air_quality.pm2_5} µg/m³</li>
+                        <li><strong>PM10:</strong> ${current.air_quality.pm10} µg/m³</li>
+                        <li><strong>US EPA Index:</strong> ${current.air_quality["us-epa-index"]}</li>
+                        <li><strong>GB DEFRA Index:</strong> ${current.air_quality["gb-defra-index"]}</li>
+                    </ul>
+                `;
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+                document.getElementById('weather-output').textContent = 'Failed to load weather data.';
+            }
+        }
+
+        // Function to change the location based on user input
+        function changeLocation() {
+            const locationInput = document.getElementById('location-input').value;
+            if (locationInput) {
+                weatherLocation = locationInput;
+                fetchWeatherData();
+            } else {
+                alert("Please enter a valid location.");
+            }
+        }
+
+        // Initial fetch for default location
+        fetchWeatherData();
+    </script>
+</body>
+</html>
